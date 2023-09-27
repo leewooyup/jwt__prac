@@ -42,15 +42,15 @@ public class JwtTests {
     @Test
     @DisplayName("JwtProvider 객체로 시크릿키 객체를 생성할 수 있다.")
     void t3() {
-        SecretKey secretKey = TestUtil.callMethod(jwtProvider,"getSecretKey");
+        SecretKey secretKey = TestUtil.callMethod(jwtProvider, "getSecretKey");
         assertThat(secretKey).isNotNull();
     }
 
     @Test
     @DisplayName("SecretKey 객체는 단 한번만 생성되어야한다")
     void t4() {
-        SecretKey secretKey1 = TestUtil.callMethod(jwtProvider,"getSecretKey");
-        SecretKey secretKey2 = TestUtil.callMethod(jwtProvider,"getSecretKey");
+        SecretKey secretKey1 = TestUtil.callMethod(jwtProvider, "getSecretKey");
+        SecretKey secretKey2 = TestUtil.callMethod(jwtProvider, "getSecretKey");
 
         assertThat(secretKey1 == secretKey2).isTrue();
     }
@@ -58,7 +58,7 @@ public class JwtTests {
     @Test
     @DisplayName("accessToken을 얻는다.")
     void t5() {
-        
+
         //회원번호가 1이고
         //username이 admin이고
         //ADMIN 역할과 MEMBER역할을 동시에 가지고 있는 회원정보를 구성
@@ -66,7 +66,7 @@ public class JwtTests {
         claims.put("id", 1L);
         claims.put("name", "jim");
         claims.put("authorities", Arrays.asList(
-                new SimpleGrantedAuthority("ADMIN"), 
+                new SimpleGrantedAuthority("ADMIN"),
                 new SimpleGrantedAuthority("MEMBER"))
         );
 
@@ -75,5 +75,27 @@ public class JwtTests {
         System.out.println("accessToken: " + accessToken);
 
         assertThat(accessToken).isNotNull();
+    }
+
+    @Test
+    @DisplayName("accessToken을 통해서 claims를 얻을 수 있다.")
+    void t6() {
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("id", 1L);
+        claims.put("name", "jim");
+        claims.put("authorities", Arrays.asList(
+                new SimpleGrantedAuthority("ADMIN"),
+                new SimpleGrantedAuthority("MEMBER"))
+        );
+
+        //지금으로부터 5시간의 유효기간을 가지는 토큰을 생성
+        String accessToken = jwtProvider.generateAccessToken(claims, 60 * 60 * 5);
+        System.out.println("accessToken: " + accessToken);
+
+        assertThat(jwtProvider.verify(accessToken)).isTrue();
+
+        Map<String, Object> claimsFromToken = jwtProvider.getClaims(accessToken);
+
+        System.out.println("claimsFromToken: " + claimsFromToken);
     }
 }
