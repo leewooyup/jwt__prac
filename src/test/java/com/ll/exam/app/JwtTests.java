@@ -41,4 +41,13 @@ public class JwtTests {
         SecretKey secretKey = jwtProvider.getSecretKey();
         assertThat(secretKey).isNotNull();
     }
+
+    @Test
+    @DisplayName("SecretKey 객체는 단 한번만 생성되어야한다")
+    void t4() {
+        SecretKey secretKey1 = jwtProvider.getSecretKey();
+        SecretKey secretKey2 = jwtProvider.getSecretKey();
+
+        assertThat(secretKey1 == secretKey2).isTrue();
+    }
 }
